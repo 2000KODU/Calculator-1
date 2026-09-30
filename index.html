@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conveyor G.B Selection</title>
+<meta name="theme-color" content="#17252b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="G.B Calc">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{--bg:#e9ecea;--panel:#fff;--ink:#17252b;--mute:#5b6b70;--line:#cfd6d3;--accent:#0b6e73;--hi:#f2b400}
+@media (prefers-color-scheme:dark){:root{--bg:#10191d;--panel:#18262c;--ink:#e6ecea;--mute:#8fa1a6;--line:#2c3d44;--accent:#47b8bd}}
+*{box-sizing:border-box}
+html,body{min-height:100vh;min-height:100dvh}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input::placeholder{color:var(--mute);opacity:.55}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.layout{display:grid;gap:14px;grid-template-columns:1fr}
+.layout>*{margin:0!important;min-width:0}
+.in{order:1}.res{order:2}.work{order:3}
+@media(min-width:900px){
+ main{padding:28px 32px}
+ h1{font-size:1.7rem}
+ .layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"in work" "res work";align-items:start}
+ .in{grid-area:in}.res{grid-area:res}.work{grid-area:work}
+}
+@media(max-width:380px){.grid,.rg{grid-template-columns:1fr}}
+#hint{display:none;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.88rem;align-items:center;gap:12px;justify-content:space-between}
+#hint button{white-space:nowrap}
+h1{font-size:1.35rem;margin:8px 0 2px}
+.sub{color:var(--mute);margin:0 0 16px;font-size:.9rem}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+h2{font-size:1rem;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+label{display:block;font-size:.85rem;color:var(--mute)}
+.f{display:flex;align-items:center;gap:6px;margin-top:3px}
+input{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink)}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.u{font-size:.8rem;color:var(--mute);min-width:38px}
+.step{border-top:1px solid var(--line);padding:10px 0}
+.step:first-of-type{border-top:0;padding-top:0}
+.step b{display:block;font-size:.9rem}
+.eq{font-family:ui-monospace,Consolas,monospace;font-size:.85rem;color:var(--mute);word-break:break-word}
+.val{font-family:ui-monospace,Consolas,monospace;font-weight:600}
+.res{background:var(--ink);color:#fff;border-radius:10px;padding:14px 16px}
+@media(prefers-color-scheme:dark){.res{background:#0a1215;border:1px solid var(--line)}}
+.res h2{color:#fff}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rg div span{display:block;font-size:.8rem;color:#9fb2b7}
+.rg div strong{font:600 1.5rem ui-monospace,Consolas,monospace;color:var(--hi)}
+.rg small{color:#9fb2b7;font-size:.8rem}
+.row{display:flex;gap:8px;margin-top:12px}
+button{font:inherit;padding:9px 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.alt{background:transparent;color:inherit;border-color:#56707a}
+#install{display:none}
+.row{flex-wrap:wrap}
+.note{font-size:.8rem;color:var(--mute);margin-top:8px}
+@media(max-width:420px){.rg strong{font-size:1.25rem}}
+</style>
+</head>
+<body>
+<main>
+<h1>Conveyor gearbox selection</h1>
+
+<div class="layout">
+<section class="in">
+<h2>Inputs</h2>
+<div class="grid">
+<label>Conveyor speed (V)<div class="f"><input id="v" type="number" inputmode="decimal" step="any"><span class="u">m/min</span></div></label>
+<label>Sprocket dia. (D)<div class="f"><input id="d" type="number" inputmode="decimal" step="any"><span class="u">m</span></div></label>
+<label>Motor RPM<div class="f"><input id="rpm" type="number" inputmode="decimal" step="any"><span class="u">rpm</span></div></label>
+<label>Load on conveyor (m)<div class="f"><input id="m" type="number" inputmode="decimal" step="any"><span class="u">kg</span></div></label>
+<label>Inclination angle (θ)<div class="f"><input id="th" type="number" inputmode="decimal" step="any"><span class="u">°</span></div></label>
+<label>Friction coeff. (µ)<div class="f"><input id="mu" type="number" inputmode="decimal" step="any"><span class="u"></span></div></label>
+<label>Factor of safety<div class="f"><input id="fos" type="number" inputmode="decimal" step="any"><span class="u">×</span></div></label>
+<label>Force for torque, manual (optional)<div class="f"><input id="fm" type="number" inputmode="decimal" step="any" placeholder="uses F"><span class="u">N</span></div></label>
+</div>
+</section>
+
+<section class="work">
+<h2>Working</h2>
+<div class="step"><b>1. Required roller RPM</b><div class="eq" id="s1"></div></div>
+<div class="step"><b>2. Gearbox ratio</b><div class="eq" id="s2"></div></div>
+<div class="step"><b>3. Force</b><div class="eq" id="s3"></div></div>
+<div class="step"><b>4. Torque</b><div class="eq" id="s4"></div></div>
+<div class="step"><b>5. Power</b><div class="eq" id="s5"></div></div>
+</section>
+
+<div class="res">
+<h2>Answers</h2>
+<div class="rg">
+<div><span>Output speed</span><strong id="r1">–</strong><small> rpm</small></div>
+<div><span>Ratio</span><strong id="r2">–</strong><small> : 1</small></div>
+<div><span>Torque (with FOS)</span><strong id="r3">–</strong><small> Nm</small></div>
+<div><span>Power (with FOS)</span><strong id="r4">–</strong><small> kW</small></div>
+</div>
+<div class="row">
+<button id="copy">Copy results</button>
+<button class="alt" id="reset">Reset</button>
+<button class="alt" id="fs" type="button" style="display:none">Full screen</button>
+<button class="alt" id="install" type="button">Install app</button>
+</div>
+</div>
+</div>
+<p class="note">Uses π = 3.14 and g = 9.81 to match the Excel sheet. Inputs are not stored; they start empty each time.</p>
+</main>
+
+<script>
+const PI = 3.14, G = 9.81;
+const EXAMPLE = {v:10,d:0.153,rpm:1400,m:250,th:0,mu:0.02,fos:2};
+const START = {v:"",d:"",rpm:"",m:"",th:"",mu:"",fos:2,fm:""};
+const ids = Object.keys(START);
+const $ = id => document.getElementById(id);
+const fmt = (x, n=3) => Number.isFinite(x) ? +x.toFixed(n) : "–";
+
+function load(){
+  ids.forEach(k => { $(k).value = START[k]; if(k in EXAMPLE) $(k).placeholder = "e.g. " + EXAMPLE[k]; });
+}
+
+let out = {};
+function calc(){
+  const n = k => parseFloat($(k).value);
+  const V=n("v"), D=n("d"), rpm=n("rpm"), m=n("m"), mu=n("mu"), fos=n("fos"), fm=n("fm");
+  const th = $("th").value.trim()==="" ? 0 : n("th");
+  if(![V,D,rpm,m,mu,fos,th].every(Number.isFinite) || D<=0 || V<=0){
+    out = {};
+    ["s1","s2","s3","s4","s5"].forEach(id => $(id).textContent = "Enter the inputs to see the working.");
+    ["r1","r2","r3","r4"].forEach(id => $(id).textContent = "–");
+    return;
+  }
+  const N = V/(PI*D);
+  const i = rpm/N;
+  const F = m*G*Math.sin(th*Math.PI/180) + mu*m*G*Math.cos(th*Math.PI/180);
+  const Fu = Number.isFinite(fm) ? fm : F;
+  const r = D/2;
+  const T = Fu*r, Tf = T*fos;
+  const P = 2*PI*N*T/60, Pk = P/1000, Pf = Pk*fos;
+  out = {N,i,Tf,Pf};
+
+  $("s1").innerHTML = `N = V / (π × D) = ${fmt(V)} / (${PI} × ${fmt(D)}) = <span class="val">${fmt(N)} rpm</span>`;
+  $("s2").innerHTML = `i = motor rpm / roller rpm = ${fmt(rpm)} / ${fmt(N)} = <span class="val">${fmt(i)} : 1</span>`;
+  $("s3").innerHTML = `F = m·g·sin θ + µ·m·g·cos θ (θ = 0 gives the horizontal case)<br>F = <span class="val">${fmt(F)} N</span>, with FOS ${fmt(fos)}× = ${fmt(F*fos)} N`;
+  $("s4").innerHTML = `T = F × r = ${fmt(Fu)} × ${fmt(r,4)} = <span class="val">${fmt(T)} Nm</span>${Number.isFinite(fm)?" (manual force)":""}<br>with FOS ${fmt(fos)}× = <span class="val">${fmt(Tf)} Nm</span>`;
+  $("s5").innerHTML = `P = 2π × N × T / 60 = 2 × ${PI} × ${fmt(N)} × ${fmt(T)} / 60 = <span class="val">${fmt(P)} W</span> (${fmt(Pk,4)} kW)<br>with FOS ${fmt(fos)}× = <span class="val">${fmt(Pf,4)} kW</span>`;
+  $("r1").textContent = fmt(N,2);
+  $("r2").textContent = fmt(i,2);
+  $("r3").textContent = fmt(Tf,2);
+  $("r4").textContent = fmt(Pf,4);
+}
+
+ids.forEach(k => $(k).addEventListener("input", calc));
+$("reset").onclick = () => { load(); calc(); $("v").focus(); };
+$("copy").onclick = async () => {
+  if(out.N===undefined) return;
+  const t = `Conveyor G.B selection\nOutput speed: ${fmt(out.N,2)} rpm\nRatio: ${fmt(out.i,2)} : 1\nTorque (FOS): ${fmt(out.Tf,2)} Nm\nPower (FOS): ${fmt(out.Pf,4)} kW`;
+  try { await navigator.clipboard.writeText(t); $("copy").textContent = "Copied"; }
+  catch(e){ $("copy").textContent = "Copy failed"; }
+  setTimeout(()=> $("copy").textContent = "Copy results", 1500);
+};
+
+const de = document.documentElement;
+const canFS = !!(de.requestFullscreen || de.webkitRequestFullscreen);
+const isFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+const goFS = () => { try { (de.requestFullscreen || de.webkitRequestFullscreen).call(de); } catch(e){} };
+const touch = matchMedia("(pointer: coarse)").matches;
+if(canFS && touch){
+  // browsers only allow fullscreen after a tap, so the first tap switches to full screen
+  const auto = () => { if(!isFS()) goFS(); };
+  addEventListener("click", auto);
+  addEventListener("touchend", auto);
+  $("fs").style.display = "inline-block";
+  $("fs").onclick = e => { e.stopPropagation(); isFS() ? (document.exitFullscreen || document.webkitExitFullscreen).call(document) : goFS(); };
+}
+
+let deferred;
+$("install").style.display = "none";
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("install").style.display = "inline-block"; });
+addEventListener("appinstalled", () => { $("install").style.display = "none"; });
+$("install").onclick = async () => { if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $("install").style.display = "none"; };
+
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
+load(); calc();
+</script>
+</body>
+</html>
